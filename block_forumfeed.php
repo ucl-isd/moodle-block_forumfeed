@@ -88,27 +88,58 @@ class block_forumfeed extends block_base {
     }
 
     public function dummy_posts() {
+        global $CFG, $DB, $USER;
+        require_once $CFG->dirroot . '/mod/forum/lib.php';
+        $courses = enrol_get_users_courses($USER->id, true, 'id, fullname, shortname');
+        // convert courses ids into a string separated by commas.
+        $courseids = array_map(function($item) {
+            return $item->id;
+        }, $courses);
+
+        $coursesstring = implode(', ', $courseids);
+        $seven_days_ago = time() - (7 * 24 * 60 * 60);
+
+        $sql = "select p.*, c.id as 'courseid', c.fullname as 'coursename', f.name as 'forum', fd.name as 'discussions'
+                from m_forum f
+                join {course} c on f.course = c.id
+                join {forum_discussions} fd on f.id = fd.forum
+                join {forum_posts} p on fd.id = p.discussion
+                where f.course in (" . $coursesstring . ") and
+                p.modified > " . $seven_days_ago . "
+                order by p.modified desc
+                limit 10";
+        $posts = $DB->get_records_sql($sql);
+
         // call get posts function.
         $data = '';
         foreach($posts as $post) {
             $data .= $this->dummy_post($post);
         }
-        return $this->dummy_post($post);
+
+        return $data;
     }
 
     public function dummy_post($data): string {
-        global $OUTPUT;
+        global $DB, $OUTPUT, $PAGE;
+
+        $url = new moodle_url('/mod/forum/discuss.php', ['d' => $data->discussion],'p'.$data->id);
         $template = new stdClass();
-        $template->course = "Course name";
-        $template->forum = "Forum name";
-        $template->title = "Post title";
-        $template->url = "forum post url";
-        $template->date = "4:30pm on 24th Sept";
+        $template->course = $data->coursename;
+        $template->forum = $data->forum;
+        $template->title = $data->subject;
+        $template->url = $url->out(false);
+        //"4:30pm on 24th Sept"
+        $template->date = date('g:ia \o\n jS M', $data->modified);
 
-        $template->username = "Brian emo";
-        $template->img = "https://randomuser.me/api/portraits/women/71.jpg";
-        $template->role = "teacher";
+        $user = $DB->get_record('user', ['id' => $data->userid]);
+        $user_picture = new user_picture($user);
+        $user_picture->size = 100; // Size can be adjusted to '100' for a small icon, or 'f2' for full size, etc.
+        $image_url = $user_picture->get_url($PAGE);
+        $roles = get_user_roles_in_course($user->id, $data->courseid);
 
+        $template->username = $user->firstname . ' ' . $user->lastname;
+        $template->img = $image_url;
+        $template->role = $roles;
 
         return $OUTPUT->render_from_template('block_forumfeed/post', $template);
     }
