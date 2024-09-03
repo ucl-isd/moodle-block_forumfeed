@@ -88,7 +88,7 @@ class block_forumfeed extends block_base {
     }
 
     public function dummy_posts() {
-        global $CFG, $DB, $USER;
+        global $CFG, $DB, $USER, $OUTPUT;
         require_once $CFG->dirroot . '/mod/forum/lib.php';
         $courses = enrol_get_users_courses($USER->id, true, 'id, fullname, shortname');
         // convert courses ids into a string separated by commas.
@@ -111,16 +111,15 @@ class block_forumfeed extends block_base {
         $posts = $DB->get_records_sql($sql);
 
         // call get posts function.
-        $data = '';
+        $template = new stdClass();
         foreach($posts as $post) {
-            $data .= $this->dummy_post($post);
+            $template->post[] = $this->dummy_post($post);
         }
-
-        return $data;
+        return $OUTPUT->render_from_template('block_forumfeed/posts', $template);
     }
 
-    public function dummy_post($data): string {
-        global $DB, $OUTPUT, $PAGE;
+    public function dummy_post($data) {
+        global $DB, $PAGE;
 
         $url = new moodle_url('/mod/forum/discuss.php', ['d' => $data->discussion],'p'.$data->id);
         $template = new stdClass();
@@ -141,6 +140,7 @@ class block_forumfeed extends block_base {
         $template->img = $image_url;
         $template->role = $roles;
 
-        return $OUTPUT->render_from_template('block_forumfeed/post', $template);
+        return $template;
+        // $OUTPUT->render_from_template('block_forumfeed/post', $template);
     }
 }
