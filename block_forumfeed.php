@@ -118,30 +118,48 @@ class block_forumfeed extends block_base {
         return $OUTPUT->render_from_template('block_forumfeed/posts', $template);
     }
 
-    public function dummy_post($data) {
+    public function dummy_post($data)
+    {
         global $DB, $PAGE;
 
-        $url = new moodle_url('/mod/forum/discuss.php', ['d' => $data->discussion],'p'.$data->id);
-        $template = new stdClass();
+        $url              = new moodle_url(
+          '/mod/forum/discuss.php',
+          ['d' => $data->discussion],
+          'p' . $data->id
+        );
+        $template         = new stdClass();
         $template->course = $data->coursename;
-        $template->forum = $data->forum;
-        $template->title = $data->subject;
-        $template->url = $url->out(false);
-        //"4:30pm on 24th Sept"
-        $template->date = date('g:ia \o\n jS M', $data->modified);
+        $template->forum  = $data->forum;
+        $template->title  = $data->subject;
+        $template->url    = $url->out(false);
+        $template->date   = date('g:ia \o\n jS M', $data->modified);
 
-        $user = $DB->get_record('user', ['id' => $data->userid]);
+        $user         = $DB->get_record('user', ['id' => $data->userid]);
         $user_picture = new user_picture($user);
-        $user_picture->size = 100; // Size can be adjusted to '100' for a small icon, or 'f2' for full size, etc.
-        $image_url = $user_picture->get_url($PAGE);
-        $roles = get_user_roles_in_course($user->id, $data->courseid);
+        $user_picture->size
+                      = 100; // Size can be adjusted to '100' for a small icon, or 'f2' for full size, etc.
+        $image_url    = $user_picture->get_url($PAGE);
+        $roles        = get_user_roles_in_course(
+          $user->id,
+          $data->courseid
+        );
+        $roles = explode(',', $roles);
 
-        if (preg_match('/<a[^>]*>(.*?)<\/a>/', $roles, $matches)) {
-            $rolename = $matches[1];
+        $rolesarray = [];
+        foreach($roles as $role) {
+            if (preg_match('/<a[^>]*>(.*?)<\/a>/', $role, $matches)) {
+                $rolename = $matches[1];
+                if ($rolename != 'Student') {
+                    $rolesarray[] = $rolename;
+                }
+            }
         }
+
+        $rolename = implode(', ', $rolesarray);
+
         $template->username = $user->firstname . ' ' . $user->lastname;
-        $template->img = $image_url;
-        $template->role = $rolename;
+        $template->img      = $image_url;
+        $template->role     = $rolename;
 
         return $template;
         // $OUTPUT->render_from_template('block_forumfeed/post', $template);
