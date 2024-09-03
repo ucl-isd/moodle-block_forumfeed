@@ -136,9 +136,12 @@ class block_forumfeed extends block_base {
         $image_url = $user_picture->get_url($PAGE);
         $roles = get_user_roles_in_course($user->id, $data->courseid);
 
+        if (preg_match('/<a[^>]*>(.*?)<\/a>/', $roles, $matches)) {
+            $rolename = $matches[1];
+        }
         $template->username = $user->firstname . ' ' . $user->lastname;
         $template->img = $image_url;
-        $template->role = $roles;
+        $template->role = $rolename;
 
         return $template;
         // $OUTPUT->render_from_template('block_forumfeed/post', $template);
