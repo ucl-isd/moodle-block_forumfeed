@@ -83,7 +83,12 @@ class block_forumfeed extends block_base {
      * @return string[] Array of pages and permissions.
      */
     public function applicable_formats() {
-        return array(
-        );
+        return [
+            'admin' => false,
+            'site-index' => true,
+            'course-view' => true,
+            'mod' => false,
+            'my' => true,
+        ];
     }
 }
