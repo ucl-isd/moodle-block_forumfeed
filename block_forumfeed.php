@@ -105,7 +105,7 @@ class block_forumfeed extends block_base {
                 join {forum_discussions} fd on f.id = fd.forum
                 join {forum_posts} p on fd.id = p.discussion
                 where f.course in (" . $coursesstring . ") and
-                p.modified > " . $seven_days_ago . "
+                p.modified > " . $seven_days_ago . " and p.userid != " . $USER->id . "
                 order by p.modified desc
                 limit 10";
         $posts = $DB->get_records_sql($sql);
