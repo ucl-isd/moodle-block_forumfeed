@@ -93,7 +93,7 @@ class block_forumfeed extends block_base {
         foreach($posts as $post) {
             $data .= $this->dummy_post($post);
         }
-        return $this->dummy_post($post);;
+        return $this->dummy_post($post);
     }
 
     public function dummy_post($data): string {
@@ -103,10 +103,10 @@ class block_forumfeed extends block_base {
         $template->forum = "Forum name";
         $template->title = "Post title";
         $template->url = "forum post url";
-        $template->date = "24/03/73";
+        $template->date = "4:30pm on 24th Sept";
 
         $template->username = "Brian emo";
-        $template->img = "foo";
+        $template->img = "https://randomuser.me/api/portraits/women/71.jpg";
         $template->role = "teacher";
 
 
