@@ -38,4 +38,9 @@
     </div>
 </div>
 <a class="line-clamp-2" href="{{ url }}">{{ title }}</a>
-<div class="small text-muted">{{{date}}}</div>
+{{#poststhisweek}}
+    <div class="small text-muted">{{#str}} poststhisweek, block_forumfeed, {{.}} {{/str}}</div>
+{{/poststhisweek}}
+{{^poststhisweek}}
+    <div class="small text-muted">{{{date}}}</div>
+{{/poststhisweek}}

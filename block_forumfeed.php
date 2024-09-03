@@ -80,8 +80,8 @@ class block_forumfeed extends block_base {
     public function applicable_formats() {
         return [
             'admin' => false,
-            'site-index' => true,
-            'course-view' => true,
+            'site-index' => false,
+            'course-view' => false,
             'mod' => false,
             'my' => true,
         ];
@@ -97,8 +97,38 @@ class block_forumfeed extends block_base {
         }, $courses);
 
         $coursesstring = implode(', ', $courseids);
-        $seven_days_ago = time() - (7 * 24 * 60 * 60);
+        $seven_days_ago = time() - (7 * DAYSECS);
+        $template = new stdClass();
 
+        // Most popular discussion this week.  Find the discussion with the
+        // highest number of replies this week.
+        list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+        $sql = "SELECT fd.id AS discussionid, fd.forum AS forumid,
+                       COUNT(p.id) AS poststhisweek
+                  FROM {forum} f
+                       JOIN {course} c ON f.course = c.id
+                       JOIN {forum_discussions} fd ON f.id = fd.forum
+                       JOIN {forum_posts} p ON fd.id = p.discussion
+                 WHERE f.course {$incourses} AND p.modified > $seven_days_ago
+              GROUP BY fd.id, fd.forum
+              ORDER BY COUNT(p.id) DESC
+                 LIMIT 1";
+        $record = $DB->get_record_sql($sql, $params);
+        $poststhisweek = $record->poststhisweek;
+
+        // Fetch the data for the most replied to discussion this week.
+        $sql = "SELECT p.*, c.id AS 'courseid', c.fullname AS 'coursename',
+                       f.name AS 'forum', fd.name AS 'discussions'
+                  FROM {forum} f
+                       JOIN {course} c ON f.course = c.id
+                       JOIN {forum_discussions} fd ON f.id = fd.forum
+                       JOIN {forum_posts} p ON fd.id = p.discussion
+                 WHERE fd.id = {$record->discussionid} AND parent = 0";
+        $record = $DB->get_record_sql($sql);
+        $record->poststhisweek = $poststhisweek;
+        $template->post[] = $this->dummy_post($record);
+
+        // Most recent posts.
         $sql = "select p.*, c.id as 'courseid', c.fullname as 'coursename', f.name as 'forum', fd.name as 'discussions'
                 from {forum} f
                 join {course} c on f.course = c.id
@@ -111,7 +141,6 @@ class block_forumfeed extends block_base {
         $posts = $DB->get_records_sql($sql);
 
         // call get posts function.
-        $template = new stdClass();
         foreach($posts as $post) {
             $template->post[] = $this->dummy_post($post);
         }
@@ -133,6 +162,11 @@ class block_forumfeed extends block_base {
         $template->title  = $data->subject;
         $template->url    = $url->out(false);
         $template->date   = date('g:ia \o\n jS M', $data->modified);
+
+        // For most popular discussion.
+        if (property_exists($data, 'poststhisweek')) {
+            $template->poststhisweek = $data->poststhisweek;
+        }
 
         $user         = $DB->get_record('user', ['id' => $data->userid]);
         $user_picture = new user_picture($user);
