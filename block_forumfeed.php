@@ -100,7 +100,7 @@ class block_forumfeed extends block_base {
         $seven_days_ago = time() - (7 * 24 * 60 * 60);
 
         $sql = "select p.*, c.id as 'courseid', c.fullname as 'coursename', f.name as 'forum', fd.name as 'discussions'
-                from m_forum f
+                from {forum} f
                 join {course} c on f.course = c.id
                 join {forum_discussions} fd on f.id = fd.forum
                 join {forum_posts} p on fd.id = p.discussion
