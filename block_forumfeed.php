@@ -52,13 +52,8 @@ class block_forumfeed extends block_base {
         $this->content->icons = array();
         $this->content->footer = '';
 
-        if (!empty($this->config->text)) {
-            $this->content->text = $this->config->text;
-        } else {
-            $text = 'Please define the content text in /blocks/forumfeed/block_forumfeed.php.';
-            $this->content->text = $text;
-        }
 
+        $this->content->text = $this->dummy_posts();
         return $this->content;
     }
 
@@ -90,5 +85,31 @@ class block_forumfeed extends block_base {
             'mod' => false,
             'my' => true,
         ];
+    }
+
+    public function dummy_posts() {
+        // call get posts function.
+        $data = '';
+        foreach($posts as $post) {
+            $data .= $this->dummy_post($post);
+        }
+        return $this->dummy_post($post);;
+    }
+
+    public function dummy_post($data): string {
+        global $OUTPUT;
+        $template = new stdClass();
+        $template->course = "Course name";
+        $template->forum = "Forum name";
+        $template->title = "Post title";
+        $template->url = "forum post url";
+        $template->date = "24/03/73";
+
+        $template->username = "Brian emo";
+        $template->img = "foo";
+        $template->role = "teacher";
+
+
+        return $OUTPUT->render_from_template('block_forumfeed/post', $template);
     }
 }
