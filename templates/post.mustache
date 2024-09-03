@@ -26,10 +26,8 @@
     }
 
 }}
-<small>{{course}} / {{forum}}</small>
-<br>
-
-<div class="d-flex">
+<div class="small line-clamp-1">{{course}} / {{forum}}</div>
+<div class="d-flex py-2">
     <div class="bg-cover rounded-circle bg-light mr-2 flex-shirk-0" style="width: 3rem;
     height: 3rem;
     background-image: url('{{{img}}}');
@@ -39,6 +37,5 @@
         <small class="badge badge-dark">{{{ role }}}</small>
     </div>
 </div>
-<a href="{{ url }}">{{ title }}</a>
-<br>
-<small>{{{date}}}</small>
+<a class="line-clamp-2" href="{{ url }}">{{ title }}</a>
+<div class="small text-muted">{{{date}}}</small>
