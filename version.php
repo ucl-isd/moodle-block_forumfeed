@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_forumfeed';
 $plugin->release = '0.1.0';
-$plugin->version = 2024090300.03;
+$plugin->version = 2024090300.04;
 $plugin->requires = 2022112800;
 $plugin->maturity = MATURITY_ALPHA;

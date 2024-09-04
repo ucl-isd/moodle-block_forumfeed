@@ -90,60 +90,63 @@ class block_forumfeed extends block_base {
     public function dummy_posts() {
         global $CFG, $DB, $USER, $OUTPUT;
         require_once $CFG->dirroot . '/mod/forum/lib.php';
-        $courses = enrol_get_users_courses($USER->id, true, 'id, fullname, shortname');
-        // convert courses ids into a string separated by commas.
-        $courseids = array_map(function($item) {
-            return $item->id;
-        }, $courses);
-
-        $coursesstring = implode(', ', $courseids);
-        $seven_days_ago = time() - (7 * DAYSECS);
         $template = new stdClass();
 
-        // Most popular discussion this week.  Find the discussion with the
-        // highest number of replies this week.
-        list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
-        $sql = "SELECT fd.id AS discussionid, fd.forum AS forumid,
-                       COUNT(p.id) AS poststhisweek
-                  FROM {forum} f
-                       JOIN {course} c ON f.course = c.id
-                       JOIN {forum_discussions} fd ON f.id = fd.forum
-                       JOIN {forum_posts} p ON fd.id = p.discussion
-                 WHERE f.course {$incourses} AND p.modified > $seven_days_ago
-              GROUP BY fd.id, fd.forum
-              ORDER BY COUNT(p.id) DESC
-                 LIMIT 1";
-        $record = $DB->get_record_sql($sql, $params);
-        $poststhisweek = $record->poststhisweek;
+        if ($courses = enrol_get_users_courses($USER->id, true, 'id, fullname, shortname')) {
+            // convert courses ids into a string separated by commas.
+            $courseids = array_map(function($item) {
+                return $item->id;
+            }, $courses);
 
-        // Fetch the data for the most replied to discussion this week.
-        $sql = "SELECT p.*, c.id AS 'courseid', c.fullname AS 'coursename',
-                       f.name AS 'forum', fd.name AS 'discussions'
-                  FROM {forum} f
-                       JOIN {course} c ON f.course = c.id
-                       JOIN {forum_discussions} fd ON f.id = fd.forum
-                       JOIN {forum_posts} p ON fd.id = p.discussion
-                 WHERE fd.id = {$record->discussionid} AND parent = 0";
-        $record = $DB->get_record_sql($sql);
-        $record->poststhisweek = $poststhisweek;
-        $template->post[] = $this->dummy_post($record);
+            $coursesstring = implode(', ', $courseids);
+            $seven_days_ago = time() - (7 * DAYSECS);
 
-        // Most recent posts.
-        $sql = "select p.*, c.id as 'courseid', c.fullname as 'coursename', f.name as 'forum', fd.name as 'discussions'
-                from {forum} f
-                join {course} c on f.course = c.id
-                join {forum_discussions} fd on f.id = fd.forum
-                join {forum_posts} p on fd.id = p.discussion
-                where f.course in (" . $coursesstring . ") and
-                p.modified > " . $seven_days_ago . " and p.userid != " . $USER->id . "
-                order by p.modified desc
-                limit 3";
-        $posts = $DB->get_records_sql($sql);
+            // Most popular discussion this week.  Find the discussion with the
+            // highest number of replies this week.
+            list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+            $sql = "SELECT fd.id AS discussionid, fd.forum AS forumid,
+                           COUNT(p.id) AS poststhisweek
+                      FROM {forum} f
+                           JOIN {course} c ON f.course = c.id
+                           JOIN {forum_discussions} fd ON f.id = fd.forum
+                           JOIN {forum_posts} p ON fd.id = p.discussion
+                     WHERE f.course {$incourses} AND p.modified > $seven_days_ago
+                  GROUP BY fd.id, fd.forum
+                  ORDER BY COUNT(p.id) DESC
+                     LIMIT 1";
+            $record = $DB->get_record_sql($sql, $params);
+            $poststhisweek = $record->poststhisweek;
 
-        // call get posts function.
-        foreach($posts as $post) {
-            $template->post[] = $this->dummy_post($post);
+            // Fetch the data for the most replied to discussion this week.
+            $sql = "SELECT p.*, c.id AS 'courseid', c.fullname AS 'coursename',
+                           f.name AS 'forum', fd.name AS 'discussions'
+                      FROM {forum} f
+                           JOIN {course} c ON f.course = c.id
+                           JOIN {forum_discussions} fd ON f.id = fd.forum
+                           JOIN {forum_posts} p ON fd.id = p.discussion
+                     WHERE fd.id = {$record->discussionid} AND parent = 0";
+            $record = $DB->get_record_sql($sql);
+            $record->poststhisweek = $poststhisweek;
+            $template->post[] = $this->dummy_post($record);
+
+            // Most recent posts.
+            $sql = "select p.*, c.id as 'courseid', c.fullname as 'coursename', f.name as 'forum', fd.name as 'discussions'
+                    from {forum} f
+                    join {course} c on f.course = c.id
+                    join {forum_discussions} fd on f.id = fd.forum
+                    join {forum_posts} p on fd.id = p.discussion
+                        where f.course in (" . $coursesstring . ") and
+                    p.modified > " . $seven_days_ago . " and p.userid != " . $USER->id . "
+                    order by p.modified desc
+                    limit 3";
+            $posts = $DB->get_records_sql($sql);
+
+            // call get posts function.
+            foreach($posts as $post) {
+                $template->post[] = $this->dummy_post($post);
+            }
         }
+
         return $OUTPUT->render_from_template('block_forumfeed/posts', $template);
     }
 
