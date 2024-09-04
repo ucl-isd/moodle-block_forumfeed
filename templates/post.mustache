@@ -45,3 +45,9 @@
 <a class="line-clamp-2 font-weight-bold" href="{{ url }}">{{ title }}</a>
 <div class="pt-2 text-muted small line-clamp-2">{{course}} / {{forum}}</div>
 
+{{#poststhisweek}}
+    <div class="small text-muted">{{#str}} poststhisweek, block_forumfeed, {{.}} {{/str}}</div>
+{{/poststhisweek}}
+{{^poststhisweek}}
+    <div class="small text-muted">{{{date}}}</div>
+{{/poststhisweek}}
