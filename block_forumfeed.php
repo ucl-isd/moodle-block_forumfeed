@@ -161,7 +161,7 @@ class block_forumfeed extends block_base {
         $template->forum  = $data->forum;
         $template->title  = $data->subject;
         $template->url    = $url->out(false);
-        $template->date   = date('g:ia \o\n jS M', $data->modified);
+        $template->date   = date('g:ia · jS F', $data->modified);
 
         // For most popular discussion.
         if (property_exists($data, 'poststhisweek')) {
