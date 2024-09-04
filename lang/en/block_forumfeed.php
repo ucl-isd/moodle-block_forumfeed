@@ -25,5 +25,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Forum feed';
-$string['poststhisweek'] = '{$a} posts this week!';
+$string['pluginname'] = 'Forum activity';
+$string['poststhisweek'] = '{$a} posts this week';
+$string['populare'] = 'Popular';

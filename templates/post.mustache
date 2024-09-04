@@ -22,32 +22,37 @@
         "role": "Teacher",
         "url": "moodlecourse?id=foo",
         "title": "My forum post title",
-        "date": "6:30pm 13th Oct",
+        "date": "6:30pm - 13th October",
+        "poststhisweek": "3",
     }
 
 }}
-
+{{! User details. }}
 <div class="d-flex align-items-center py-3">
     <div class="bg-cover rounded-circle bg-light mr-2 flex-shrink-0"
     style="width: 4rem; height: 4rem; background-image: url('{{{img}}}');
     "></div>
     <div>
-        <div class="small">{{{username}}}
-        {{#role}}
-        <span class="badge badge-dark">{{{ role }}}</span>
-        {{/role}}
+        <div class="small">
+            {{{username}}}
+            {{#role}}
+            <span class="badge badge-dark">{{{ role }}}</span>
+            {{/role}}
         </div>
 
         <div class="small">{{{date}}}</div>
     </div>
 </div>
 
-<a class="line-clamp-2 font-weight-bold" href="{{ url }}">{{ title }}</a>
-<div class="pt-2 text-muted small line-clamp-2">{{course}} / {{forum}}</div>
+{{! Title. }}
+<div class="pb-3">
+    <a class="line-clamp-2 font-weight-bold" href="{{ url }}">{{ title }}</a>
+</div>
 
 {{#poststhisweek}}
-    <div class="small text-muted">{{#str}} poststhisweek, block_forumfeed, {{.}} {{/str}}</div>
+<span class="badge badge-success">{{#str}} populare, block_forumfeed {{/str}}</span>
+<span class="small">{{#str}} poststhisweek, block_forumfeed, {{.}} {{/str}}</span>
 {{/poststhisweek}}
-{{^poststhisweek}}
-    <div class="small text-muted">{{{date}}}</div>
-{{/poststhisweek}}
+
+<div class="text-muted small line-clamp-2">{{course}} / {{forum}}</div>
+

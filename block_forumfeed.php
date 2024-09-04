@@ -137,7 +137,7 @@ class block_forumfeed extends block_base {
                 where f.course in (" . $coursesstring . ") and
                 p.modified > " . $seven_days_ago . " and p.userid != " . $USER->id . "
                 order by p.modified desc
-                limit 10";
+                limit 3";
         $posts = $DB->get_records_sql($sql);
 
         // call get posts function.
