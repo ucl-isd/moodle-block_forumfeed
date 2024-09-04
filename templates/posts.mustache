@@ -1,11 +1,23 @@
-
-    <div class="row">
-    {{#post}}
-        <div class="col-12 col-sm-6 col-md-3 py-2">
+<div class="row">
+{{#post}}
+    <div class="col-12 col-sm-6 col-md-3">
         {{> block_forumfeed/post }}
-        </div>
-    {{/post}}
     </div>
+{{/post}}
+
+{{! No posts message. }}
+{{^post}}
+    <p>{{#str}} noposts, block_forumfeed {{/str}}</p>
+{{/post}}
+</div>
+
+{{! Link to all forum posts by user. }}
+<div class="text-right">
+    <a href="{{{ config.wwwroot }}}/mod/forum/user.php">
+        <i class="fa-solid fa-circle-arrow-right mr-2" aria-hidden="true"></i>
+        {{#str}} viewyourforumposts,  block_forumfeed {{/str}}
+    </a>
+</div>
 
 
 <style>

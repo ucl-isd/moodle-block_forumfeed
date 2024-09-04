@@ -49,10 +49,10 @@
     <a class="line-clamp-2 font-weight-bold" href="{{ url }}">{{ title }}</a>
 </div>
 
-{{#poststhisweek}}
-<span class="badge badge-success">{{#str}} populare, block_forumfeed {{/str}}</span>
+{{#popular}}
+<span class="badge badge-success"><i class="fa-solid fa-arrow-trend-up mr-1"></i> {{#str}} popular, block_forumfeed {{/str}}</span>
 <span class="small">{{#str}} poststhisweek, block_forumfeed, {{.}} {{/str}}</span>
-{{/poststhisweek}}
+{{/popular}}
 
 <div class="text-muted small line-clamp-2">{{course}} / {{forum}}</div>
 

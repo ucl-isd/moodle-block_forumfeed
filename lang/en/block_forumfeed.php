@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['noposts'] = 'Posts from forums across your courses will be shown here.';
 $string['pluginname'] = 'Forum activity';
 $string['poststhisweek'] = '{$a} posts this week';
-$string['populare'] = 'Popular';
+$string['popular'] = 'Popular';
+$string['viewyourforumposts'] = 'View your forum posts';
