@@ -1,7 +1,18 @@
-<div class="row">
-{{#post}}
-    <div class="col-3 py-2">
-    {{> block_forumfeed/post }}
+
+    <div class="row">
+    {{#post}}
+        <div class="col-12 col-sm-6 col-md-3 py-2">
+        {{> block_forumfeed/post }}
+        </div>
+    {{/post}}
     </div>
-{{/post}}
-</div>
+
+
+<style>
+.block_forumfeed {
+padding-top: 2rem !important;
+    .h5 {
+        font-size: 1.75rem;
+    }
+}
+</style>

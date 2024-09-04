@@ -26,16 +26,22 @@
     }
 
 }}
-<div class="small line-clamp-1">{{course}} / {{forum}}</div>
-<div class="d-flex py-2">
-    <div class="bg-cover rounded-circle bg-light mr-2 flex-shirk-0" style="width: 3rem;
-    height: 3rem;
-    background-image: url('{{{img}}}');
+
+<div class="d-flex align-items-center py-3">
+    <div class="bg-cover rounded-circle bg-light mr-2 flex-shrink-0"
+    style="width: 4rem; height: 4rem; background-image: url('{{{img}}}');
     "></div>
     <div>
-        <small>{{{username}}}</small>
-        <small class="badge badge-dark">{{{ role }}}</small>
+        <div class="small">{{{username}}}
+        {{#role}}
+        <span class="badge badge-dark">{{{ role }}}</span>
+        {{/role}}
+        </div>
+
+        <div class="small">{{{date}}}</div>
     </div>
 </div>
-<a class="line-clamp-2" href="{{ url }}">{{ title }}</a>
-<div class="small text-muted">{{{date}}}</div>
+
+<a class="line-clamp-2 font-weight-bold" href="{{ url }}">{{ title }}</a>
+<div class="pt-2 text-muted small line-clamp-2">{{course}} / {{forum}}</div>
+
