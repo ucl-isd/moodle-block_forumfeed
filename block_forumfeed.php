@@ -97,17 +97,34 @@ class block_forumfeed extends block_base {
             list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
 
             // Get the discussions visible to this user.
-            $sql = "SELECT fd.id AS discussionid, fd.groupid, c.id AS courseid
+            $sql = "SELECT fd.id AS discussionid, fd.groupid, c.id AS courseid,
+                           f.id as forumid
                       FROM {forum} f
                            JOIN {course} c ON f.course = c.id
                            JOIN {forum_discussions} fd ON f.id = fd.forum
                      WHERE f.course $incourses";
+
+            // Filter out discussions where either the forum is not visible to
+            // the current user or the discussion is not visible due to group
+            // restrictions.
             $visiblediscussions = array_filter(
                     $DB->get_records_sql($sql, $params),
                     function ($item) {
-                        return ($item->groupid == -1) || groups_is_member($item->groupid);
+                        global $USER;
+                        $cm = get_coursemodule_from_id('forum', $item->forumid, $item->courseid, false, MUST_EXIST);
+                        $cm = get_fast_modinfo($item->courseid, $USER->id)->get_cm($cm->id);
+                        $context = context_module::instance($cm->id);
+
+                        return $cm->uservisible && (($item->groupid == -1) ||
+                                groups_is_member($item->groupid) ||
+                                has_capability('moodle/site:accessallgroups',
+                                        $context));
                     }
             );
+
+            if (count($visiblediscussions) === 0) {
+                return '';
+            }
 
             // Convert visible discussions into array of discussion IDs.
             $visiblediscussions = array_map(function($item) {
