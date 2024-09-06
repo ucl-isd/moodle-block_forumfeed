@@ -87,9 +87,10 @@ class block_forumfeed extends block_base {
     public function forum_posts(): string {
         global $CFG, $DB, $USER, $OUTPUT;
         require_once $CFG->dirroot . '/mod/forum/lib.php';
+
         $template = new stdClass();
 
-        if ($courses = enrol_get_users_courses($USER->id, true, 'id, fullname, shortname')) {
+        if ($courses = enrol_get_users_courses($USER->id, true, 'id, fullname')) {
             // convert courses ids into a string separated by commas.
             $courseids = array_map(function($item) {
                 return $item->id;
@@ -116,11 +117,11 @@ class block_forumfeed extends block_base {
      *
      * @param array $courseids
      */
-    public function popular_post($courseids): stdClass {
+    public function popular_post($courseids): ?stdClass {
         global $DB;
         $seven_days_ago = time() - (7 * DAYSECS);
-        // Most popular discussion this week.  Find the discussion with the
-        // highest number of replies this week.
+        // Most popular discussion this week.
+        // Find the discussion with the highest number of replies this week.
         list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
         $sql = "SELECT fd.id AS discussionid, fd.forum AS forumid,
                         COUNT(p.id) AS poststhisweek
@@ -135,17 +136,19 @@ class block_forumfeed extends block_base {
         $record = $DB->get_record_sql($sql, $params);
         $poststhisweek = $record->poststhisweek;
 
-        // Fetch the data for the most replied to discussion this week.
-        $sql = "SELECT p.*, c.id AS 'courseid', c.fullname AS 'coursename',
-                        f.name AS 'forum', fd.name AS 'discussions'
-                    FROM {forum} f
-                        JOIN {course} c ON f.course = c.id
-                        JOIN {forum_discussions} fd ON f.id = fd.forum
-                        JOIN {forum_posts} p ON fd.id = p.discussion
-                    WHERE fd.id = {$record->discussionid} AND parent = 0";
-        $record = $DB->get_record_sql($sql);
-        $record->poststhisweek = $poststhisweek;
-        return $record;
+        if ($record) {
+            // Fetch the data for the most popular to discussion this week.
+            $sql = "SELECT p.*, c.id AS 'courseid', c.fullname AS 'coursename',
+                            f.name AS 'forum', fd.name AS 'discussions'
+                        FROM {forum} f
+                            JOIN {course} c ON f.course = c.id
+                            JOIN {forum_discussions} fd ON f.id = fd.forum
+                            JOIN {forum_posts} p ON fd.id = p.discussion
+                        WHERE fd.id = {$record->discussionid} AND parent = 0";
+            $record = $DB->get_record_sql($sql);
+            $record->poststhisweek = $poststhisweek;
+            return $record;
+        }
     }
 
     /**
