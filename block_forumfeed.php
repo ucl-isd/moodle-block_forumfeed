@@ -99,8 +99,9 @@ class block_forumfeed extends block_base {
             $coursesstring = implode(', ', $courseids);
 
             // Most popular post.
-            $popular = $this->popular_post($coursesstring);
-            $template->post[] = $this->forum_post($popular);
+            if ($popular = $this->popular_post($coursesstring)) {
+                $template->post[] = $this->forum_post($popular);
+            }
 
             // Recent posts.
             $posts = $this->recent_posts($coursesstring);
@@ -120,6 +121,7 @@ class block_forumfeed extends block_base {
     public function popular_post($courseids): ?stdClass {
         global $DB;
         $seven_days_ago = time() - (7 * DAYSECS);
+
         // Most popular discussion this week.
         // Find the discussion with the highest number of replies this week.
         list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
@@ -136,6 +138,7 @@ class block_forumfeed extends block_base {
         $record = $DB->get_record_sql($sql, $params);
         $poststhisweek = $record->poststhisweek;
 
+        // Get record for the popular post.
         if ($record) {
             // Fetch the data for the most popular to discussion this week.
             $sql = "SELECT p.*, c.id AS 'courseid', c.fullname AS 'coursename',
@@ -149,6 +152,9 @@ class block_forumfeed extends block_base {
             $record->poststhisweek = $poststhisweek;
             return $record;
         }
+
+        // No popular posts.
+        return null;
     }
 
     /**
@@ -158,7 +164,6 @@ class block_forumfeed extends block_base {
      */
     public function recent_posts($coursesstring): array {
         global $DB, $USER;
-
         $seven_days_ago = time() - (7 * DAYSECS);
 
         // Most recent posts.
