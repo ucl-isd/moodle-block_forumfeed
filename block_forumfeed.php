@@ -90,7 +90,7 @@ class block_forumfeed extends block_base {
 
         $template = new stdClass();
 
-        if ($courses = enrol_get_users_courses($USER->id, true, 'id, fullname')) {
+        if ($courses = enrol_get_users_courses($USER->id, true, 'id')) {
             // convert courses ids into a string separated by commas.
             $courseids = array_map(function($item) {
                 return $item->id;
@@ -122,7 +122,7 @@ class block_forumfeed extends block_base {
         global $DB;
         $seven_days_ago = time() - (7 * DAYSECS);
 
-        // Most popular discussion this week.
+        // Most popular discussion post this week.
         // Find the discussion with the highest number of replies this week.
         list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
         $sql = "SELECT fd.id AS discussionid, fd.forum AS forumid,
@@ -136,11 +136,12 @@ class block_forumfeed extends block_base {
                 ORDER BY COUNT(p.id) DESC
                     LIMIT 1";
         $record = $DB->get_record_sql($sql, $params);
-        $poststhisweek = $record->poststhisweek;
 
-        // Get record for the popular post.
+        // If popular discussion, get data for template.
         if ($record) {
-            // Fetch the data for the most popular to discussion this week.
+            $poststhisweek = $record->poststhisweek; // Count of replies this week.
+
+            // Fetch the data for the most popular discussion this week.
             $sql = "SELECT p.*, c.id AS 'courseid', c.fullname AS 'coursename',
                             f.name AS 'forum', fd.name AS 'discussions'
                         FROM {forum} f
@@ -153,7 +154,7 @@ class block_forumfeed extends block_base {
             return $record;
         }
 
-        // No popular posts.
+        // No popular discussion.
         return null;
     }
 
@@ -187,17 +188,17 @@ class block_forumfeed extends block_base {
     public function forum_post($data): stdClass {
         global $DB, $PAGE;
 
-        $template         = new stdClass();
+        $template = new stdClass();
         $template->course = $data->coursename;
-        $template->forum  = $data->forum;
-        $template->title  = $data->subject;
+        $template->forum = $data->forum;
+        $template->title = str_replace("Re: ", "", $data->subject);
         // URL for discussion with # appended.
-        $url = new moodle_url('/mod/forum/discuss.php',
+        $url =
+        $template->url = new moodle_url('/mod/forum/discuss.php',
             ['d' => $data->discussion],
             'p' . $data->id
         );
-        $template->url    = $url->out(false);
-        $template->date   = date('g:ia · jS F', $data->modified);
+        $template->date = date('g:ia · jS F', $data->modified);
 
         $user = $DB->get_record('user', ['id' => $data->userid]);
         $user_picture = new user_picture($user);
@@ -205,7 +206,7 @@ class block_forumfeed extends block_base {
         $image_url = $user_picture->get_url($PAGE);
         $template->username = fullname($user);
         $template->img = $image_url;
-        /* Role tag. */
+        // Role tag.
         $template->role = $this->user_role($data, $user);
 
         // Most popular discussion.
