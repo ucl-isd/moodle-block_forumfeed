@@ -95,16 +95,52 @@ class block_forumfeed extends block_base {
             $courseids = array_map(function($item) {
                 return $item->id;
             }, $courses);
-            $seven_days_ago = time() - (7 * DAYSECS);
-            $coursesstring = implode(', ', $courseids);
+            list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+
+            // Get the discussions visible to this user.
+            $sql = "SELECT fd.id AS discussionid, fd.groupid, c.id AS courseid,
+                           f.id as forumid, cm.id AS cmid
+                      FROM {forum} f
+                      JOIN {course} c ON f.course = c.id
+                      JOIN {forum_discussions} fd ON f.id = fd.forum
+                      JOIN {course_modules} cm ON cm.instance = f.id
+                      JOIN {modules} m ON cm.module = m.id
+                           AND m.name = 'forum'
+                     WHERE f.course $incourses";
+
+            // Filter out discussions where either the forum is not visible to
+            // the current user or the discussion is not visible due to group
+            // restrictions.
+            $visiblediscussions = array_filter(
+                    $DB->get_records_sql($sql, $params),
+                    function ($item) {
+                        global $USER;
+                        $cm = get_fast_modinfo($item->courseid, $USER->id)->get_cm($item->cmid);
+                        $context = context_module::instance($cm->id);
+
+                        return $cm->uservisible && (($item->groupid == -1) ||
+                                groups_is_member($item->groupid) ||
+                                has_capability('moodle/site:accessallgroups',
+                                        $context));
+                    }
+            );
+
+            if (count($visiblediscussions) === 0) {
+                return '';
+            }
+
+            // Convert visible discussions into array of discussion IDs.
+            $visiblediscussions = array_map(function($item) {
+                return $item->discussionid;
+            }, $visiblediscussions);
 
             // Most popular post.
-            if ($popular = $this->popular_post($coursesstring)) {
+            if ($popular = $this->popular_post($visiblediscussions)) {
                 $template->post[] = $this->forum_post($popular);
             }
 
             // Recent posts.
-            $posts = $this->recent_posts($coursesstring);
+            $posts = $this->recent_posts($visiblediscussions);
             foreach($posts as $post) {
                 $template->post[] = $this->forum_post($post);
             }
@@ -116,25 +152,26 @@ class block_forumfeed extends block_base {
     /**
      * Return sql result for recent posts.
      *
-     * @param array $courseids
+     * @param array $visiblediscussions Array of discussion IDs visible to
+     * this user, for example, [1, 2, 3].
      */
-    public function popular_post($courseids): ?stdClass {
+    public function popular_post(array $visiblediscussions): ?stdClass {
         global $DB;
-        $seven_days_ago = time() - (7 * DAYSECS);
-
-        // Most popular discussion post this week.
-        // Find the discussion with the highest number of replies this week.
-        list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+        list($indiscussions, $params) = $DB->get_in_or_equal($visiblediscussions, SQL_PARAMS_NAMED);
+        $sevendaysago = time() - (7 * DAYSECS);
+        // Most popular discussion this week.  Find the discussion with the
+        // highest number of replies this week.
         $sql = "SELECT fd.id AS discussionid, fd.forum AS forumid,
-                        COUNT(p.id) AS poststhisweek
-                    FROM {forum} f
-                        JOIN {course} c ON f.course = c.id
-                        JOIN {forum_discussions} fd ON f.id = fd.forum
-                        JOIN {forum_posts} p ON fd.id = p.discussion
-                    WHERE f.course {$incourses} AND p.modified > $seven_days_ago
-                GROUP BY fd.id, fd.forum
-                ORDER BY COUNT(p.id) DESC
-                    LIMIT 1";
+                       COUNT(p.id) AS poststhisweek
+                  FROM {forum} f
+                       JOIN {course} c ON f.course = c.id
+                       JOIN {forum_discussions} fd ON f.id = fd.forum
+                       JOIN {forum_posts} p ON fd.id = p.discussion
+                 WHERE p.modified > $sevendaysago
+                       AND fd.id {$indiscussions}
+              GROUP BY fd.id, fd.forum
+              ORDER BY COUNT(p.id) DESC
+                 LIMIT 1";
         $record = $DB->get_record_sql($sql, $params);
 
         // If popular discussion, get data for template.
@@ -161,11 +198,14 @@ class block_forumfeed extends block_base {
     /**
      * Return sql results for recent posts.
      *
-     * @param stdClass $data
+     * @param array $visiblediscussions Array of discussion IDs visible to
+     * this user, for example, [1, 2, 3].
      */
-    public function recent_posts($coursesstring): array {
+    public function recent_posts(array $visiblediscussions): array {
         global $DB, $USER;
-        $seven_days_ago = time() - (7 * DAYSECS);
+
+        $sevendaysago = time() - (7 * DAYSECS);
+        list($indiscussions, $params) = $DB->get_in_or_equal($visiblediscussions, SQL_PARAMS_NAMED);
 
         // Most recent posts.
         $sql = "select p.*, c.id as 'courseid', c.fullname as 'coursename', f.name as 'forum', fd.name as 'discussions'
@@ -173,11 +213,11 @@ class block_forumfeed extends block_base {
         join {course} c on f.course = c.id
         join {forum_discussions} fd on f.id = fd.forum
         join {forum_posts} p on fd.id = p.discussion
-            where f.course in (" . $coursesstring . ") and
-        p.modified > " . $seven_days_ago . " and p.userid != " . $USER->id . "
+            where p.modified > $sevendaysago and p.userid != " . $USER->id . "
+        AND fd.id {$indiscussions}
         order by p.modified desc
         limit 3";
-        return $DB->get_records_sql($sql);
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**
