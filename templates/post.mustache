@@ -27,34 +27,44 @@
     }
 
 }}
-{{! User details. }}
-<div class="d-flex align-items-center py-3">
-    <div class="bg-cover rounded-circle bg-light mr-2 flex-shrink-0"
-    style="width: 4rem; height: 4rem; background-image: url('{{{img}}}');
-    "></div>
-    <div>
+<div class="forum-feed-card position-relative p-3 h-100">
+    {{! Poster details. }}
+    <div class="d-flex align-items-center">
+        <div class="bg-cover rounded-circle bg-light mr-2 flex-shrink-0"
+        style="width: 4rem; height: 4rem; background-image: url('{{{img}}}');
+        "></div>
         <div class="small">
-            {{{username}}}
-            {{#role}}
-            <span class="badge badge-dark">{{{ role }}}</span>
-            {{/role}}
-        </div>
+            <div>
+                {{{username}}}
+                {{#role}}
+                <span class="badge badge-dark">{{{ role }}}</span>
+                {{/role}}
+            </div>
 
-        <div class="small">{{{date}}}</div>
+            <div class="date">
+                <span class="timedate">{{{date}}}</span>
+            </div>
+        </div>
+    </div>
+
+    {{! Popular tag. }}
+    {{#popular}}
+    <div class="py-2">
+        <span class="badge badge-success"><i class="fa-solid fa-arrow-trend-up mr-1"></i> {{#str}} popular, block_forumfeed {{/str}}</span>
+        <span class="small">{{#str}} poststhisweek, block_forumfeed, {{.}} {{/str}}</span>
+    </div>
+    {{/popular}}
+
+    {{! Forum post link. }}
+    <div class="my-2">
+        <a class="line-clamp-2 font-weight-bold stretched-link" href="{{ url }}">{{ title }}</a>
+    </div>
+
+    {{! Activity breadcrumb. }}
+    <div class="text-muted small line-clamp-2">
+        <div class="d-flex align-items-center">
+            <div class="rounded-circle bg-cover flex-shrink-0 mr-2  bg-light"
+            style="background-image: url({{courseimage}}); height: 2rem; width: 2rem;"></div>{{course}} / {{forum}}
+        </div>
     </div>
 </div>
-
-{{#popular}}
-<span class="badge badge-success"><i class="fa-solid fa-arrow-trend-up mr-1"></i> {{#str}} popular, block_forumfeed {{/str}}</span>
-<span class="small">{{#str}} poststhisweek, block_forumfeed, {{.}} {{/str}}</span>
-{{/popular}}
-
-{{! Title. }}
-<div class="pb-3">
-    <a class="line-clamp-2 font-weight-bold" href="{{ url }}">{{ title }}</a>
-</div>
-
-
-
-<div class="text-muted small line-clamp-2">{{course}} / {{forum}}</div>
-

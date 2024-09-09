@@ -1,6 +1,21 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+
+<p>{{#str}} description,  block_forumfeed {{/str}}</p>
 <div class="row">
 {{#post}}
-    <div class="col-12 col-sm-6 col-md-3">
+    <div class="col-12 col-sm-6 col-md-3 {{#popular}} col-md-6 {{/popular}} mb-1 p-2">
         {{> block_forumfeed/post }}
     </div>
 {{/post}}
@@ -15,17 +30,22 @@
 
 {{! Link to all forum posts by user. }}
 <div class="text-right mt-3">
-    <a href="{{{ config.wwwroot }}}/mod/forum/user.php">
+    <a href="{{{ config.wwwroot }}}/mod/forum/user.php" class="h5 text-dark">
         <i class="fa-solid fa-circle-arrow-right mr-2" aria-hidden="true"></i>{{#str}} viewyourforumposts,  block_forumfeed {{/str}}
     </a>
 </div>
 
-
 <style>
+/* TODO - This all needs to go into the theme. */
 .block_forumfeed {
-padding-top: 2rem !important;
-    .h5 {
-        font-size: 1.75rem;
+    padding: 1rem 0;
+    a {
+        font-weight: 500 !important;
     }
+}
+
+/* Top margin for links so not covered by sticky breadcrumb. */
+.forum-post-container:target {
+    scroll-margin-top: 82px;
 }
 </style>

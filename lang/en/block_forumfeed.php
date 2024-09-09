@@ -25,8 +25,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['description'] = 'Recent and popular forum posts from your courses.';
 $string['noposts'] = 'Posts from forums across your courses will be shown here.';
 $string['pluginname'] = 'Forum activity';
 $string['poststhisweek'] = '{$a} posts this week';
 $string['popular'] = 'Popular';
+$string['timed'] = 'days ago';
+$string['timeh'] = 'hours ago';
+$string['timejustnow'] = 'just now';
+$string['timem'] = 'minutes ago';
 $string['viewyourforumposts'] = 'View your forum posts';

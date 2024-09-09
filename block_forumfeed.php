@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
+use core_course\external\course_summary_exporter;
+
 /**
  * Block forumfeed is defined here.
  *
@@ -91,10 +93,11 @@ class block_forumfeed extends block_base {
         $template = new stdClass();
 
         if ($courses = enrol_get_users_courses($USER->id, true, 'id')) {
-            // convert courses ids into a string separated by commas.
+            // Convert courses ids into a string separated by commas.
             $courseids = array_map(function($item) {
                 return $item->id;
             }, $courses);
+
             list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
 
             // Get the discussions visible to this user.
@@ -157,8 +160,10 @@ class block_forumfeed extends block_base {
      */
     public function popular_post(array $visiblediscussions): ?stdClass {
         global $DB;
-        list($indiscussions, $params) = $DB->get_in_or_equal($visiblediscussions, SQL_PARAMS_NAMED);
+
         $sevendaysago = time() - (7 * DAYSECS);
+        list($indiscussions, $params) = $DB->get_in_or_equal($visiblediscussions, SQL_PARAMS_NAMED);
+
         // Most popular discussion this week.  Find the discussion with the
         // highest number of replies this week.
         $sql = "SELECT fd.id AS discussionid, fd.forum AS forumid,
@@ -216,7 +221,7 @@ class block_forumfeed extends block_base {
             where p.modified > $sevendaysago and p.userid != " . $USER->id . "
         AND fd.id {$indiscussions}
         order by p.modified desc
-        limit 3";
+        limit 6";
         return $DB->get_records_sql($sql, $params);
     }
 
@@ -230,6 +235,9 @@ class block_forumfeed extends block_base {
 
         $template = new stdClass();
         $template->course = $data->coursename;
+        $course = new stdClass();
+        $course->id = $data->courseid;
+        $template->courseimage = course_summary_exporter::get_course_image($course);
         $template->forum = $data->forum;
         $template->title = str_replace("Re: ", "", $data->subject);
         // URL for discussion with # appended.
@@ -238,7 +246,8 @@ class block_forumfeed extends block_base {
             ['d' => $data->discussion],
             'p' . $data->id
         );
-        $template->date = date('g:ia · jS F', $data->modified);
+        $template->date = $this->human_readable_time($data->modified);
+
 
         $user = $DB->get_record('user', ['id' => $data->userid]);
         $user_picture = new user_picture($user);
@@ -252,6 +261,7 @@ class block_forumfeed extends block_base {
         // Most popular discussion.
         if (property_exists($data, 'poststhisweek')) {
             $template->popular = $data->poststhisweek;
+            $template->date = date('g:ia · jS F', $data->modified);
         }
 
         return $template;
@@ -274,11 +284,31 @@ class block_forumfeed extends block_base {
             if (preg_match('/<a[^>]*>(.*?)<\/a>/', $role, $matches)) {
                 $rolename = $matches[1];
                 if ($rolename != 'Student') {
-                    $rolesarray[] = $rolename;
+                    // Return highest priorty role.
+                    return $rolename;
                 }
             }
         }
-        $rolename = implode(', ', $rolesarray);
-        return $rolename;
+        // No role.
+        return '';
+    }
+
+        /**
+     * Return time ago.
+     *
+     * @param int timestamp
+     */
+    function human_readable_time($timestamp): string {
+        $time_elapsed = time() - $timestamp;
+
+        if ($time_elapsed < 60) {
+            return get_string('timejustnow', 'block_forumfeed');
+        } elseif ($time_elapsed < 3600) {
+            return round($time_elapsed / 60) . ' ' . get_string('timem', 'block_forumfeed');
+        } elseif ($time_elapsed < 86400) {
+            return round($time_elapsed / 3600) . ' ' . get_string('timeh', 'block_forumfeed');
+        } elseif ($time_elapsed < 2592000) { // Less than a month.
+            return round($time_elapsed / 86400) . ' ' .  get_string('timed', 'block_forumfeed');
+        }
     }
 }
