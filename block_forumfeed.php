@@ -98,10 +98,13 @@ class block_forumfeed extends block_base {
 
             // Get the discussions visible to this user.
             $sql = "SELECT fd.id AS discussionid, fd.groupid, c.id AS courseid,
-                           f.id as forumid
+                           f.id as forumid, cm.id AS cmid
                       FROM {forum} f
-                           JOIN {course} c ON f.course = c.id
-                           JOIN {forum_discussions} fd ON f.id = fd.forum
+                      JOIN {course} c ON f.course = c.id
+                      JOIN {forum_discussions} fd ON f.id = fd.forum
+                      JOIN {course_modules} cm ON cm.instance = f.id
+                      JOIN {modules} m ON cm.module = m.id
+                           AND m.name = 'forum'
                      WHERE f.course $incourses";
 
             // Filter out discussions where either the forum is not visible to
@@ -111,8 +114,7 @@ class block_forumfeed extends block_base {
                     $DB->get_records_sql($sql, $params),
                     function ($item) {
                         global $USER;
-                        $cm = get_coursemodule_from_id('forum', $item->forumid, $item->courseid, false, MUST_EXIST);
-                        $cm = get_fast_modinfo($item->courseid, $USER->id)->get_cm($cm->id);
+                        $cm = get_fast_modinfo($item->courseid, $USER->id)->get_cm($item->cmid);
                         $context = context_module::instance($cm->id);
 
                         return $cm->uservisible && (($item->groupid == -1) ||
