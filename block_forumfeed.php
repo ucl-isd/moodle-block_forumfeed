@@ -75,8 +75,8 @@ class block_forumfeed extends block_base {
         }
 
         $this->content = new stdClass();
-        $this->content->items = array();
-        $this->content->icons = array();
+        $this->content->items = [];
+        $this->content->icons = [];
         $this->content->footer = '';
         $this->content->text = $this->forum_posts();
         return $this->content;
@@ -88,7 +88,7 @@ class block_forumfeed extends block_base {
      */
     public function forum_posts(): string {
         global $CFG, $DB, $USER, $OUTPUT;
-        require_once $CFG->dirroot . '/mod/forum/lib.php';
+        require_once($CFG->dirroot . '/mod/forum/lib.php');
 
         $template = new stdClass();
 
@@ -139,13 +139,12 @@ class block_forumfeed extends block_base {
 
             // Most popular post.
             if ($popular = $this->popular_post($visiblediscussions)) {
-                // var_dump($popular->id);
                 $template->post[] = $this->forum_post($popular);
             }
 
             // Recent posts.
             $posts = $this->recent_posts($visiblediscussions);
-            foreach($posts as $post) {
+            foreach ($posts as $post) {
                 $template->post[] = $this->forum_post($post);
             }
         }
@@ -257,11 +256,11 @@ class block_forumfeed extends block_base {
 
 
         $user = $DB->get_record('user', ['id' => $data->userid]);
-        $user_picture = new user_picture($user);
-        $user_picture->size = 100;
-        $image_url = $user_picture->get_url($PAGE);
+        $userpicture = new user_picture($user);
+        $userpicture->size = 100;
+        $imageurl = $userpicture->get_url($PAGE);
         $template->username = fullname($user);
-        $template->img = $image_url;
+        $template->img = $imageurl;
         // Role tag.
         $template->role = $this->user_role($data, $user);
 
@@ -287,7 +286,7 @@ class block_forumfeed extends block_base {
         );
         $roles = explode(',', $roles);
         $rolesarray = [];
-        foreach($roles as $role) {
+        foreach ($roles as $role) {
             if (preg_match('/<a[^>]*>(.*?)<\/a>/', $role, $matches)) {
                 $rolename = $matches[1];
                 if ($rolename != 'Student') {
@@ -300,22 +299,22 @@ class block_forumfeed extends block_base {
         return '';
     }
 
-        /**
+    /**
      * Return time ago.
      *
      * @param int timestamp
      */
-    function human_readable_time($timestamp): string {
-        $time_elapsed = time() - $timestamp;
+    public function human_readable_time($timestamp): string {
+        $timeelapsed = time() - $timestamp;
 
-        if ($time_elapsed < 60) {
+        if ($timeelapsed < 60) {
             return get_string('timejustnow', 'block_forumfeed');
-        } elseif ($time_elapsed < 3600) {
-            return round($time_elapsed / 60) . ' ' . get_string('timem', 'block_forumfeed');
-        } elseif ($time_elapsed < 86400) {
-            return round($time_elapsed / 3600) . ' ' . get_string('timeh', 'block_forumfeed');
-        } elseif ($time_elapsed < 2592000) { // Less than a month.
-            return round($time_elapsed / 86400) . ' ' .  get_string('timed', 'block_forumfeed');
+        } else if ($timeelapsed < 3600) {
+            return round($timeelapsed / 60) . ' ' . get_string('timem', 'block_forumfeed');
+        } else if ($timeelapsed < 86400) {
+            return round($timeelapsed / 3600) . ' ' . get_string('timeh', 'block_forumfeed');
+        } else if ($timeelapsed < 2592000) { // Less than a month.
+            return round($timeelapsed / 86400) . ' ' .  get_string('timed', 'block_forumfeed');
         }
     }
 }
