@@ -62,11 +62,11 @@
         <a class="line-clamp-2 font-weight-bold stretched-link" href="{{ url }}">{{ title }}</a>
     </div>
 
-    {{! Activity breadcrumb. }}
-    <div class="text-muted small line-clamp-2">
-        <div class="d-flex align-items-center">
-            <div class="rounded-circle bg-cover flex-shrink-0 mr-2  bg-light"
-            style="background-image: url({{courseimage}}); height: 2rem; width: 2rem;"></div>{{course}} / {{forum}}
-        </div>
+    {{! Forum post breadcrumb. }}
+    <div class="text-muted small d-flex align-items-center">
+        <div class="rounded-circle bg-cover flex-shrink-0 mr-2 bg-light"
+        style="background-image: url({{courseimage}}); height: 2rem; width: 2rem;"></div>
+        <div class="line-clamp-2">{{course}} / {{forum}}</div>
     </div>
+
 </div>
