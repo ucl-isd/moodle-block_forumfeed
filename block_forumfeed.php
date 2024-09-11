@@ -139,6 +139,7 @@ class block_forumfeed extends block_base {
 
             // Most popular post.
             if ($popular = $this->popular_post($visiblediscussions)) {
+                // var_dump($popular->id);
                 $template->post[] = $this->forum_post($popular);
             }
 
@@ -213,15 +214,21 @@ class block_forumfeed extends block_base {
         list($indiscussions, $params) = $DB->get_in_or_equal($visiblediscussions, SQL_PARAMS_NAMED);
 
         // Most recent posts.
-        $sql = "select p.*, c.id as 'courseid', c.fullname as 'coursename', f.name as 'forum', fd.name as 'discussions'
-        from {forum} f
-        join {course} c on f.course = c.id
-        join {forum_discussions} fd on f.id = fd.forum
-        join {forum_posts} p on fd.id = p.discussion
-            where p.modified > $sevendaysago and p.userid != " . $USER->id . "
-        AND fd.id {$indiscussions}
-        order by p.modified desc
-        limit 6";
+        $sql = "SELECT
+                p.*,
+                c.id AS courseid,
+                c.fullname AS coursename,
+                f.name AS forum,
+                fd.name AS discussions
+                FROM {forum} f
+                    JOIN {course} c ON f.course = c.id
+                    JOIN {forum_discussions} fd ON f.id = fd.forum
+                    JOIN {forum_posts} p ON fd.id = p.discussion
+                WHERE p.modified > $sevendaysago
+                    AND p.userid != " . $USER->id . "
+                    AND fd.id {$indiscussions}
+                ORDER BY p.modified DESC
+                LIMIT 6";
         return $DB->get_records_sql($sql, $params);
     }
 
