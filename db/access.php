@@ -25,15 +25,13 @@ defined('MOODLE_INTERNAL') || die();
 $capabilities = [
     'block/forumfeed:addinstance' => [
         'riskbitmask' => RISK_SPAM | RISK_XSS,
-
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
         ],
-
-        'clonepermissionsfrom' => 'moodle/site:manageblocks'
+        'clonepermissionsfrom' => 'moodle/site:manageblocks',
     ],
     'block/forumfeed:myaddinstance' => [
         'captype' => 'write',
@@ -41,7 +39,6 @@ $capabilities = [
         'archetypes' => [
             'user' => CAP_ALLOW,
         ],
-
-        'clonepermissionsfrom' => 'moodle/my:manageblocks'
+        'clonepermissionsfrom' => 'moodle/my:manageblocks',
     ],
 ];

@@ -254,7 +254,6 @@ class block_forumfeed extends block_base {
         );
         $template->date = $this->human_readable_time($data->modified);
 
-
         $user = $DB->get_record('user', ['id' => $data->userid]);
         $userpicture = new user_picture($user);
         $userpicture->size = 100;
