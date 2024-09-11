@@ -43,7 +43,7 @@
 
 {{! Link to all forum posts by user. }}
 <div class="text-right mt-3">
-    <a href="{{{ config.wwwroot }}}/mod/forum/user.php" class="h5 text-dark">
+    <a href="{{{ config.wwwroot }}}/mod/forum/user.php" class="h5 font-weight-bold text-dark">
         <i class="fa-solid fa-circle-arrow-right mr-2" aria-hidden="true"></i>{{#str}} viewyourforumposts,  block_forumfeed {{/str}}
     </a>
 </div>
@@ -52,9 +52,6 @@
 /* TODO - This all needs to go into the theme. */
 .block_forumfeed {
     padding: 1rem 0;
-    a {
-        font-weight: 500 !important;
-    }
 }
 
 /* Top margin for links so not covered by sticky breadcrumb. */

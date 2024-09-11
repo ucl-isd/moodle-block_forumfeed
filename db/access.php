@@ -15,6 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ *
+ * Plugin capabilities for the block_forumfeed plugin.
+ *
  * @package    block_forumfeed
  * @copyright  Leon Stringer <leon.stringer@ucl.ac.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

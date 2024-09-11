@@ -26,6 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Forumaktivität';
-$string['poststhisweek'] = '{$a} Beiträge diese Woche';
 $string['popular'] = 'Beliebt';
+$string['poststhisweek'] = '{$a} Beiträge diese Woche';
+
 

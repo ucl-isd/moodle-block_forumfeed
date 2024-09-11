@@ -64,7 +64,6 @@ class block_forumfeed extends block_base {
      * @return stdClass The block contents.
      */
     public function get_content() {
-        global $OUTPUT;
         if ($this->content !== null) {
             return $this->content;
         }
@@ -237,33 +236,39 @@ class block_forumfeed extends block_base {
      * @param stdClass $data
      */
     public function forum_post($data): stdClass {
-        global $DB, $PAGE;
+        global $DB;
 
         $template = new stdClass();
+        // Course.
         $template->course = $data->coursename;
         $course = new stdClass();
         $course->id = $data->courseid;
         $template->courseimage = course_summary_exporter::get_course_image($course);
+
+        // Forum.
         $template->forum = $data->forum;
+
+        // Post.
         $template->title = str_replace("Re: ", "", $data->subject);
-        // URL for discussion with # appended.
-        $url =
+        $template->date = $this->human_readable_time($data->modified);
+
+        // URL with # appended.
         $template->url = new moodle_url('/mod/forum/discuss.php',
             ['d' => $data->discussion],
             'p' . $data->id
         );
-        $template->date = $this->human_readable_time($data->modified);
 
-        $user = $DB->get_record('user', ['id' => $data->userid]);
+        // Post author.
+        $user = core_user::get_user($data->userid);
         $userpicture = new user_picture($user);
         $userpicture->size = 100;
-        $imageurl = $userpicture->get_url($PAGE);
+        $template->img = $userpicture->get_url($this->page)->out(false);
         $template->username = fullname($user);
-        $template->img = $imageurl;
-        // Role tag.
-        $template->role = $this->user_role($data, $user);
 
-        // Most popular discussion.
+        // Role tag.
+        $template->role = $this->user_role($data->courseid, $user);
+
+        // For popular discussion.
         if (property_exists($data, 'poststhisweek')) {
             $template->popular = $data->poststhisweek;
             $template->date = date('g:ia · jS F', $data->modified);
@@ -275,16 +280,12 @@ class block_forumfeed extends block_base {
     /**
      * Return user role
      *
-     * @param stdClass $data
+     * @param int $courseid
      * @param stdClass $user
      */
-    public function user_role($data, $user): string {
-        $roles = get_user_roles_in_course(
-            $user->id,
-            $data->courseid
-        );
+    public function user_role(int $courseid, $user): string {
+        $roles = get_user_roles_in_course($user->id, $courseid);
         $roles = explode(',', $roles);
-        $rolesarray = [];
         foreach ($roles as $role) {
             if (preg_match('/<a[^>]*>(.*?)<\/a>/', $role, $matches)) {
                 $rolename = $matches[1];
@@ -301,7 +302,7 @@ class block_forumfeed extends block_base {
     /**
      * Return time ago.
      *
-     * @param int timestamp
+     * @param int $timestamp
      */
     public function human_readable_time($timestamp): string {
         $timeelapsed = time() - $timestamp;
