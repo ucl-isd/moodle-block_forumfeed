@@ -22,9 +22,7 @@
  * @copyright   2024 Leon Stringer <leon.stringer@ucl.ac.uk>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
+$string['forumfeed:addinstance'] = 'Add a new forum activity block';
 $string['description'] = 'Recent and popular forum posts from your courses.';
 $string['noposts'] = 'Posts from forums across your courses will be shown here.';
 $string['pluginname'] = 'Forum activity';

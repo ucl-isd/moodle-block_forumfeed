@@ -22,11 +22,7 @@
  * @copyright   2024 Leon Stringer <leon.stringer@ucl.ac.uk>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
+$string['forumfeed:addinstance'] = 'Neuen Block \'Forumaktivität\' hinzufügen';
 $string['pluginname'] = 'Forumaktivität';
 $string['popular'] = 'Beliebt';
 $string['poststhisweek'] = '{$a} Beiträge diese Woche';
-
-
