@@ -22,7 +22,7 @@
  * @copyright   2024 Leon Stringer <leon.stringer@ucl.ac.uk>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['forumfeed:addinstance'] = 'Add a new forum activity block';
+$string['forumfeed:myaddinstance'] = 'Add a new forum activity block to Dashboard';
 $string['description'] = 'Recent and popular forum posts from your courses.';
 $string['noposts'] = 'Posts from forums across your courses will be shown here.';
 $string['pluginname'] = 'Forum activity';

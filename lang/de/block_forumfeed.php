@@ -22,7 +22,7 @@
  * @copyright   2024 Leon Stringer <leon.stringer@ucl.ac.uk>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['forumfeed:addinstance'] = 'Neuen Block \'Forumaktivität\' hinzufügen';
+$string['forumfeed:myaddinstance'] = 'Neuen Block \'Forumaktivität\' im Dashboard hinzufügen';
 $string['pluginname'] = 'Forumaktivität';
 $string['popular'] = 'Beliebt';
 $string['poststhisweek'] = '{$a} Beiträge diese Woche';

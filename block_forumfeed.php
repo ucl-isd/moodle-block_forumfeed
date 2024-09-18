@@ -40,10 +40,6 @@ class block_forumfeed extends block_base {
      */
     public function applicable_formats() {
         return [
-            'admin' => false,
-            'site-index' => false,
-            'course-view' => false,
-            'mod' => false,
             'my' => true,
         ];
     }
