@@ -29,21 +29,21 @@
     }
 
 }}
-<div class="forum-feed-card position-relative p-3 h-100">
+<div class="forum-feed-card position-relative d-flex flex-column p-3 h-100">
     {{! Poster details. }}
-    <div class="d-flex align-items-center">
+    <div class="d-flex">
         <div class="bg-cover rounded-circle bg-light mr-2 flex-shrink-0"
-        style="width: 4rem; height: 4rem; background-image: url('{{{img}}}');
+        style="width: 3rem; height: 3rem; background-image: url('{{{img}}}');
         "></div>
         <div class="small">
             <div>
-                {{{username}}}
                 {{#role}}
                 <span class="badge badge-dark">{{{ role }}}</span>
                 {{/role}}
+                {{{username}}}
             </div>
 
-            <div class="date">
+            <div>
                 <span class="timedate">{{{date}}}</span>
             </div>
         </div>
@@ -51,22 +51,22 @@
 
     {{! Popular tag. }}
     {{#popular}}
-    <div class="py-2">
+    <div class="pt-2">
         <span class="badge badge-success"><i class="fa-solid fa-arrow-trend-up mr-1"></i> {{#str}} popular, block_forumfeed {{/str}}</span>
-        <span class="small">{{#str}} poststhisweek, block_forumfeed, {{.}} {{/str}}</span>
+        <span class="small"> {{#str}} poststhisweek, block_forumfeed, {{.}} {{/str}}</span>
     </div>
     {{/popular}}
 
     {{! Forum post link. }}
-    <div class="my-2">
+    <div class="py-2">
         <a class="line-clamp-2 font-weight-bold stretched-link" href="{{ url }}">{{ title }}</a>
     </div>
 
     {{! Forum post breadcrumb. }}
-    <div class="text-muted small d-flex align-items-center">
+    <div class="mt-auto d-flex align-items-center small text-muted ">
         <div class="rounded-circle bg-cover flex-shrink-0 mr-2 bg-light"
         style="background-image: url({{courseimage}}); height: 2rem; width: 2rem;"></div>
-        <div class="line-clamp-2">{{course}} / {{forum}}</div>
+        <div class="line-clamp-2">{{forum}}</div>
     </div>
 
 </div>
