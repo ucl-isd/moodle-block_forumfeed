@@ -303,14 +303,14 @@ class block_forumfeed extends block_base {
     public function human_readable_time($timestamp): string {
         $timeelapsed = time() - $timestamp;
 
-        if ($timeelapsed < 60) {
+        if ($timeelapsed < MINSECS) {
             return get_string('timejustnow', 'block_forumfeed');
-        } else if ($timeelapsed < 3600) {
-            return round($timeelapsed / 60) . ' ' . get_string('timem', 'block_forumfeed');
-        } else if ($timeelapsed < 86400) {
-            return round($timeelapsed / 3600) . ' ' . get_string('timeh', 'block_forumfeed');
-        } else if ($timeelapsed < 2592000) { // Less than a month.
-            return round($timeelapsed / 86400) . ' ' .  get_string('timed', 'block_forumfeed');
+        } else if ($timeelapsed < HOURSECS) {
+            return get_string('timem', 'block_forumfeed', round($timeelapsed / MINSECS));
+        } else if ($timeelapsed < DAYSECS) {
+            return get_string('timeh', 'block_forumfeed', round($timeelapsed / HOURSECS));
+        } else {
+            return get_string('timed', 'block_forumfeed', round($timeelapsed / DAYSECS));
         }
     }
 }
