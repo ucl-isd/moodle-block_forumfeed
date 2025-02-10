@@ -24,6 +24,10 @@ use core_course\external\course_summary_exporter;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_forumfeed extends block_base {
+    /**
+     * @var int Epoch time seven days ago.
+     */
+    private int $sevendaysago;
 
     /**
      * Initializes class member variables.
@@ -31,6 +35,8 @@ class block_forumfeed extends block_base {
     public function init() {
         // Needed by Moodle to differentiate between blocks.
         $this->title = get_string('pluginname', 'block_forumfeed');
+
+        $this->sevendaysago = time() - (7 * DAYSECS);
     }
 
     /**
@@ -104,7 +110,8 @@ class block_forumfeed extends block_base {
                       JOIN {course_modules} cm ON cm.instance = f.id
                       JOIN {modules} m ON cm.module = m.id
                            AND m.name = 'forum'
-                     WHERE f.course $incourses";
+                     WHERE f.course $incourses
+                           AND fd.timemodified > {$this->sevendaysago}";
 
             // Filter out discussions where either the forum is not visible to
             // the current user or the discussion is not visible due to group
@@ -156,7 +163,6 @@ class block_forumfeed extends block_base {
     public function popular_post(array $visiblediscussions): ?stdClass {
         global $DB;
 
-        $sevendaysago = time() - (7 * DAYSECS);
         list($indiscussions, $params) = $DB->get_in_or_equal($visiblediscussions, SQL_PARAMS_NAMED);
 
         // Most popular discussion this week.  Find the discussion with the
@@ -167,7 +173,7 @@ class block_forumfeed extends block_base {
                        JOIN {course} c ON f.course = c.id
                        JOIN {forum_discussions} fd ON f.id = fd.forum
                        JOIN {forum_posts} p ON fd.id = p.discussion
-                 WHERE p.modified > $sevendaysago
+                 WHERE p.modified > {$this->sevendaysago}
                        AND fd.id {$indiscussions}
               GROUP BY fd.id, fd.forum
               ORDER BY COUNT(p.id) DESC
@@ -204,7 +210,6 @@ class block_forumfeed extends block_base {
     public function recent_posts(array $visiblediscussions): array {
         global $DB, $USER;
 
-        $sevendaysago = time() - (7 * DAYSECS);
         list($indiscussions, $params) = $DB->get_in_or_equal($visiblediscussions, SQL_PARAMS_NAMED);
 
         // Most recent posts.
@@ -218,7 +223,7 @@ class block_forumfeed extends block_base {
                     JOIN {course} c ON f.course = c.id
                     JOIN {forum_discussions} fd ON f.id = fd.forum
                     JOIN {forum_posts} p ON fd.id = p.discussion
-                WHERE p.modified > $sevendaysago
+                WHERE p.modified > {$this->sevendaysago}
                     AND p.userid != " . $USER->id . "
                     AND fd.id {$indiscussions}
                 ORDER BY p.modified DESC
