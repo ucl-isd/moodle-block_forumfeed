@@ -1,8 +1,8 @@
 # Forum feed #
 
-TODO Describe the plugin shortly here.
+The Forum activity block gives you an overview of what people are talking about across your courses, along with the most popular discussion from the last 7 days.  
 
-TODO Provide more detailed description here.
+The block will only show standard Moodle forums and will not include posts from alternative forum plugins such as Advanced forums.  
 
 ## Installing via uploaded ZIP file ##
 
