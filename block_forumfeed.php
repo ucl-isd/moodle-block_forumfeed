@@ -188,8 +188,8 @@ class block_forumfeed extends block_base {
             $poststhisweek = $record->poststhisweek; // Count of replies this week.
 
             // Fetch the data for the most popular discussion this week.
-            $sql = "SELECT p.*, c.id AS 'courseid', c.fullname AS 'coursename',
-                            f.name AS 'forum', fd.name AS 'discussions'
+            $sql = "SELECT p.*, c.id AS courseid, c.fullname AS coursename,
+                            f.name AS forum, fd.name AS discussions
                         FROM {forum} f
                             JOIN {course} c ON f.course = c.id
                             JOIN {forum_discussions} fd ON f.id = fd.forum
