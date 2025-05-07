@@ -100,6 +100,7 @@ class block_forumfeed extends block_base {
             }, $courses);
 
             list($incourses, $params) = $DB->get_in_or_equal($courseids, SQL_PARAMS_NAMED);
+            $now = \core\di::get(\core\clock::class)->time();
 
             // Get the discussions visible to this user.
             $sql = "SELECT fd.id AS discussionid, fd.groupid, c.id AS courseid,
@@ -111,7 +112,9 @@ class block_forumfeed extends block_base {
                       JOIN {modules} m ON cm.module = m.id
                            AND m.name = 'forum'
                      WHERE f.course $incourses
-                           AND fd.timemodified > {$this->sevendaysago}";
+                           AND fd.timemodified > $this->sevendaysago
+                           AND fd.timestart <= $now
+                           AND (fd.timeend = 0 OR fd.timeend > $now)";
 
             // Filter out discussions where either the forum is not visible to
             // the current user or the discussion is not visible due to group
@@ -185,8 +188,8 @@ class block_forumfeed extends block_base {
             $poststhisweek = $record->poststhisweek; // Count of replies this week.
 
             // Fetch the data for the most popular discussion this week.
-            $sql = "SELECT p.*, c.id AS 'courseid', c.fullname AS 'coursename',
-                            f.name AS 'forum', fd.name AS 'discussions'
+            $sql = "SELECT p.*, c.id AS courseid, c.fullname AS coursename,
+                            f.name AS forum, fd.name AS discussions
                         FROM {forum} f
                             JOIN {course} c ON f.course = c.id
                             JOIN {forum_discussions} fd ON f.id = fd.forum
